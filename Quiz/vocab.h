@@ -1,8 +1,8 @@
-﻿#ifndef __VOCAB_H__
+#ifndef __VOCAB_H__
 #define __VOCAB_H__
 
 #include <vector>
-#include <QString.h>
+#include <QString>
 
 struct vocab
 {

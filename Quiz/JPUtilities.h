@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <algorithm>
-#include <QString.h>
+#include <QString>
 
 inline const std::vector<QString>& hiragana()
 {
