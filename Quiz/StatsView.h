@@ -23,14 +23,16 @@ namespace View
         Stats& operator++()
         {
             ++right;
-            ++count;
+            if (count < total)
+                ++count;
             update();
             return *this;
         }
 
         Stats& operator--()
         {
-            ++count;
+            if (count < total)
+                ++count;
             update();
             return *this;
         }

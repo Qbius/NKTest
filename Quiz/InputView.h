@@ -30,6 +30,7 @@ namespace View
         };
 
         void switch_to(input_type, bool = false);
+        void disable();
 
     signals:
 

@@ -37,6 +37,13 @@ namespace View
         }
     }
 
+    void Input::disable()
+    {
+        one_edit->disable_edit(0);
+        two_edits->disable_edit(0);
+        two_edits->disable_edit(1);
+    }
+
     namespace details
     {
         input_frame::input_frame(const std::vector<QString>& label_texts, QWidget* parent)
@@ -79,9 +86,15 @@ namespace View
             std::vector<QString> answers_list;
             for (const auto edit : edits)
             {
-                edit->setDisabled(false);
-                answers_list.push_back(edit->text());
-                edit->setText("");
+                if (edit->isEnabled())
+                {
+                    answers_list.push_back(edit->text());
+                    edit->setText("");
+                }
+                else
+                {
+                    edit->setEnabled(true);
+                }
             }
             emit answers(answers_list);
             edits.front()->setFocus();

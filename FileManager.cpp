@@ -14,14 +14,22 @@ file_manager::file_manager()
 
 void file_manager::add_file(const std::string& full_path)
 {
-    const std::string filename = boost::filesystem::basename(full_path);
+    if (boost::filesystem::extension(full_path) == ".csv")
+    {
+        const std::string filename = boost::filesystem::basename(full_path);
 
-    boost::filesystem::path
-        source{ full_path },
-        destination{ nk_directory / (filename + nk_extension) };
-    boost::filesystem::copy_file(source, destination);
+        boost::filesystem::path
+            source{ full_path },
+            destination{ nk_directory / (filename + nk_extension) };
+        boost::filesystem::copy_file(source, destination);
 
-    active_files.insert(filename);
+        active_files.insert(filename);
+    }
+    else
+    {
+        QMessageBox* invalid_file = new QMessageBox{ QMessageBox::Warning, "Warning", "Invalid file", QMessageBox::Ok, nullptr /*can't be like that but Imma wait till I have a dedicated error handler I mean a little memory leak can't hurt, right???*/ };
+        invalid_file->exec();
+    }
 }
 
 void file_manager::remove_file(const std::string& filename)

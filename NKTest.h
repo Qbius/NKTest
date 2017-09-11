@@ -1,7 +1,7 @@
 #include <QtWidgets>
 #include "FileManager.h"
 #include <vector>
-#include "Quiz/vocab.h"
+#include "vocab.h"
 
 class NKTest : public QMainWindow
 {
@@ -20,6 +20,11 @@ private:
     void setup_menus();
     void add_file();
     void file_mgr_dialog();
-    void new_session();
+    void new_session(const std::vector<vocab>&);
     std::vector<vocab> parse_active_files();
+
+    void dragEnterEvent(QDragEnterEvent*);
+    void dragMoveEvent(QDragMoveEvent*);
+    void dragLeaveEvent(QDragLeaveEvent*);
+    void dropEvent(QDropEvent*);
 };

@@ -16,6 +16,8 @@ class quiz_master : public QWidget
     std::vector<vocab> material;
     std::vector<vocab>::const_iterator current_question;
 
+    std::vector<vocab> mistakes;
+
     View::Main* main;
     View::Input* input;
     View::Stats* stats;
@@ -30,6 +32,10 @@ private:
     void check_answers(std::vector<QString>&);
     void answered(bool);
     void set_question();
+
+signals:
+
+    void quick_session(const std::vector<vocab>&);
 };
 
 #endif

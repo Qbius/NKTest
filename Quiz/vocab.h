@@ -17,20 +17,20 @@ struct vocab
         invalid
     } type;
 
-    vocab(const std::string& w, const std::vector<std::string>& rs, const std::string& m, const std::string& t)
-        : writing(QString::fromStdString(w)), meaning(QString::fromStdString(m)), type(t == "kanji" ? kanji : word)
+    vocab(const QString& w, const QStringList& rs, const QString& m, const QString& t)
+        : writing(w), meaning(m), type(t == "kanji" ? kanji : word)
     {
         for (const auto& r : rs)
         {
-            auto dot = r.find('.');
-            if (dot == std::string::npos)
+            QStringList parts{ r.split(".") };
+            if (parts.size() == 1)
             {
-                readings.push_back(QString::fromStdString(r));
+                readings.push_back(r);
             }
-            else
+            else if (parts.size() == 2)
             {
-                readings.push_back(QString::fromStdString(r.substr(0, dot)));
-                readings.push_back(QString::fromStdString(r).replace(".", ""));
+                readings.push_back(parts[0]);
+                readings.push_back(parts[0] + parts[1]);
             }
         }
     }

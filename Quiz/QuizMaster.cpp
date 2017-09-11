@@ -1,5 +1,6 @@
 ﻿#include "Quiz/QuizMaster.h"
 #include "JPUtilities.h"
+#include <random>
 
 quiz_master::quiz_master(const std::vector<vocab>& mat, QWidget* parent) : 
     QWidget(parent), 
@@ -13,20 +14,37 @@ quiz_master::quiz_master(const std::vector<vocab>& mat, QWidget* parent) :
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QGridLayout* layout = new QGridLayout;
+
+    layout->setRowMinimumHeight(0, 250);
     layout->setRowMinimumHeight(1, 250);
-    layout->setRowMinimumHeight(2, 250);
+    layout->setColumnMinimumWidth(0, 250);
     layout->setColumnMinimumWidth(1, 250);
     layout->setColumnMinimumWidth(2, 250);
-    layout->setColumnMinimumWidth(3, 250);
+    
 
     layout->addWidget(main, 0, 0, 1, 2);
     layout->addWidget(input, 1, 1);
     layout->addWidget(stats, 1, 0);
     layout->addWidget(wrong, 0, 2, 2, 1);
 
+    int rows = layout->rowCount();
+    int cols = layout->columnCount();
+
+
     setLayout(layout);
 
     connect(input, &View::Input::answers, this, &quiz_master::check_answers);
+    connect(wrong, &View::Wrong::copy_mistakes, [this](const QString& copied_text) {
+        QApplication::clipboard()->setText(copied_text);
+    });
+    connect(wrong, &View::Wrong::mistake_session, [this]() {
+        emit quick_session(mistakes);
+    });
+
+    std::random_device seed;
+    std::mt19937 rng(seed());
+    std::shuffle(material.begin(), material.end(), rng);
+
     set_question();
 }
 
@@ -72,10 +90,14 @@ void quiz_master::answered(bool correct)
         }
 
         wrong->insert_mistake(correct_answer);
+        mistakes.push_back(*current_question);
     }
 
     ++current_question;
-    set_question();
+    if (current_question != material.end())
+        set_question();
+    else
+        input->disable();
 }
 
 void quiz_master::set_question()
