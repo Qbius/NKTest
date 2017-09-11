@@ -48,6 +48,11 @@ quiz_master::quiz_master(const std::vector<vocab>& mat, QWidget* parent) :
     set_question();
 }
 
+bool quiz_master::in_progress()
+{
+    return current_question != material.end();
+}
+
 void quiz_master::check_answers(std::vector<QString>& answers)
 {
     for (auto& answer : answers)

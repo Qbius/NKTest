@@ -26,6 +26,7 @@ inline boost::filesystem::path get_nk_directory()
 }
 
 const boost::filesystem::path nk_directory{ get_nk_directory() };
+const boost::filesystem::path nk_quiz_directory{ nk_directory / "Quiz_files" };
 const std::string nk_extension{ ".nkt" };
 
 #endif

@@ -1,5 +1,4 @@
 ﻿#include "NKTest.h"
-#include "StartPage.h"
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include "Quiz/QuizMaster.h"
@@ -17,7 +16,26 @@ void NKTest::setup_views()
 {
     setAcceptDrops(true);
     setMinimumSize(750, 500);
-    tabs->addTab(new start_page{ this }, "Main");
+
+    start_page* start = new start_page{ this };
+    connect(&file_mgr, &file_manager::file_added, start, &start_page::add_filename);
+    connect(&file_mgr, &file_manager::file_removed, start, &start_page::remove_filename);
+    connect(start, &start_page::start_session, [this](const std::vector<QString>& filenames) {
+        std::set<std::string> files_to_parse; 
+        for (const auto& filename : filenames)
+        {
+            files_to_parse.insert(filename.toStdString()); // this whole thing is unacceptable and will be dealt with eventually
+        }
+
+        new_session(parse_files(files_to_parse));
+    });
+
+    file_mgr.init();
+
+    tabs->addTab(start, "Main");
+    tabs->setTabsClosable(true);
+    tabs->tabBar()->tabButton(0, QTabBar::RightSide)->resize(0, 0);
+    connect(tabs, &QTabWidget::tabCloseRequested, this, &NKTest::on_tab_close);
 }
 
 void NKTest::setup_menus()
@@ -42,7 +60,7 @@ void NKTest::setup_menus()
     QAction* newSessionAct = new QAction{ "New session", this };
     newSessionAct->setShortcut(QKeySequence::New);
     connect(newSessionAct, &QAction::triggered, [this]() {
-        new_session(parse_active_files());
+        new_session(parse_files(file_mgr.active_files));
     });
     sessionMenu->addAction(newSessionAct);
 }
@@ -72,7 +90,7 @@ void NKTest::new_session(const std::vector<vocab>& m)
 
         quiz_master* session = new quiz_master{ m, this };
         connect(session, &quiz_master::quick_session, this, &NKTest::new_session);
-        tabs->addTab(session, "Session" + QString::fromStdString(std::to_string(session_count)));
+        tabs->addTab(session, "Session " + QString::fromStdString(std::to_string(session_count)));
         tabs->setCurrentIndex(tabs->count() - 1);
         ++session_count;
     }
@@ -84,13 +102,13 @@ void NKTest::new_session(const std::vector<vocab>& m)
     }
 }
 
-std::vector<vocab> NKTest::parse_active_files()
+std::vector<vocab> NKTest::parse_files(const std::set<std::string>& filenames)
 {
     std::vector<vocab> material;
 
-    for (const auto& filename : file_mgr.active_files)
+    for (const auto& filename : filenames)
     {
-        std::ifstream input(boost::filesystem::path{ nk_directory / (filename + nk_extension) }.string());
+        std::ifstream input(boost::filesystem::path{ nk_quiz_directory / (filename + nk_extension) }.string());
         
         std::string line;
         while (std::getline(input, line))
@@ -145,4 +163,16 @@ void NKTest::dropEvent(QDropEvent* event)
 
         event->acceptProposedAction();
     }
+}
+
+void NKTest::on_tab_close(int index)
+{
+    if (dynamic_cast<quiz_master*>(tabs->widget(index))->in_progress()) 
+    {
+        const int result = (new QMessageBox{ QMessageBox::Warning, "Warning", "Session is in progress.\nClose the tab regardless?", QMessageBox::Yes | QMessageBox::No, this })->exec();
+        if (result == QMessageBox::No)
+            return;
+    }
+    tabs->removeTab(index);
+
 }

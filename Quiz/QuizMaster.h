@@ -26,6 +26,7 @@ class quiz_master : public QWidget
 public:
 
     quiz_master(const std::vector<vocab>&, QWidget* = nullptr);
+    bool in_progress();
 
 private:
     

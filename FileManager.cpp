@@ -3,12 +3,17 @@
 #include <QtWidgets>
 #include "NKTestConstants.h"
 
-file_manager::file_manager()
+
+void file_manager::init()
 {
-    for (boost::filesystem::directory_iterator it{ boost::filesystem::absolute(nk_directory) }; it != boost::filesystem::directory_iterator{}; ++it)
-    {   
-        if (boost::filesystem::is_regular_file(it->path()) && boost::filesystem::extension(it->path()) == nk_extension) 
-            active_files.insert(boost::filesystem::basename(it->path()));
+    for (boost::filesystem::directory_iterator it{ boost::filesystem::absolute(nk_quiz_directory) }; it != boost::filesystem::directory_iterator{}; ++it)
+    {
+        if (boost::filesystem::is_regular_file(it->path()) && boost::filesystem::extension(it->path()) == nk_extension)
+        {
+            std::string name = boost::filesystem::basename(it->path());
+            active_files.insert(name);
+            emit file_added(QString::fromStdString(name));
+        }
     }
 }
 
@@ -16,14 +21,26 @@ void file_manager::add_file(const std::string& full_path)
 {
     if (boost::filesystem::extension(full_path) == ".csv")
     {
-        const std::string filename = boost::filesystem::basename(full_path);
+        std::string filename = boost::filesystem::basename(full_path);
+
+        if (filename.substr(0, 8) == "tangorin")
+        {
+            QMessageBox* should_rename = new QMessageBox{ QMessageBox::Question, "NKTest", "Do you want to rename the file?", QMessageBox::Yes | QMessageBox::No, nullptr /*see below, except iono yet what to do with this one. Prolly refactor to the main class*/ };
+            if (should_rename->exec() == QMessageBox::Yes)
+            {
+                bool ok;
+                QString new_name = QInputDialog::getText(nullptr /*-||-*/, "NKTest", "New filename:", QLineEdit::Normal, QDir::home().dirName(), &ok);
+                if (ok && !new_name.isEmpty()) filename = new_name.toStdString();
+            }
+        }
 
         boost::filesystem::path
             source{ full_path },
-            destination{ nk_directory / (filename + nk_extension) };
+            destination{ nk_quiz_directory / (filename + nk_extension) };
         boost::filesystem::copy_file(source, destination);
 
         active_files.insert(filename);
+        emit file_added(QString::fromStdString(filename));
     }
     else
     {
@@ -35,7 +52,8 @@ void file_manager::add_file(const std::string& full_path)
 void file_manager::remove_file(const std::string& filename)
 {
     active_files.erase(filename);
-    std::remove(boost::filesystem::path{ nk_directory / (filename + nk_extension) }.string().c_str());
+    std::remove(boost::filesystem::path{ nk_quiz_directory / (filename + nk_extension) }.string().c_str());
+    emit file_removed(QString::fromStdString(filename));
 }
 
 void file_manager::open_dialog()
