@@ -2,7 +2,10 @@
 #define __NK_TEST_CONSTANTS_H__
 
 #include <boost/filesystem.hpp>
+
+#ifdef WIN32
 #include <shlobj.h>
+#endif
 
 inline boost::filesystem::path get_nk_directory()
 {

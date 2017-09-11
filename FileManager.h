@@ -3,7 +3,7 @@
 
 #include <string>
 #include <set>
-#include <QDialog.h>
+#include <QDialog>
 
 class file_manager
 {
