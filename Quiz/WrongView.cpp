@@ -14,15 +14,13 @@ namespace View
         QHBoxLayout* buttons_bar_layout = new QHBoxLayout;
 
         QPushButton* copy = new QPushButton{ "Copy to clipboard", buttons_bar };
-        connect(copy, &QPushButton::pressed, [this]() {
+        connect(copy, &QPushButton::pressed, this, [this]() {
             emit copy_mistakes(mistakes->toPlainText());
         });
         buttons_bar_layout->addWidget(copy);
 
         QPushButton* quick_session = new QPushButton{ "Quick session", buttons_bar };
-        connect(quick_session, &QPushButton::pressed, [this]() {
-            emit mistake_session();
-        });
+        connect(quick_session, &QPushButton::pressed, this, &Wrong::mistake_session);
         buttons_bar_layout->addWidget(quick_session);
         buttons_bar->setLayout(buttons_bar_layout);
 

@@ -11,12 +11,8 @@ namespace View
         layout->addWidget(two_edits);
         setLayout(layout);
 
-        connect(one_edit, &details::input_frame::answers, [this](std::vector<QString>& a) {
-            emit answers(a);
-        });
-        connect(two_edits, &details::input_frame::answers, [this](std::vector<QString>& a) {
-            emit answers(a);
-        });
+        connect(one_edit, &details::input_frame::answers, this, &Input::answers);
+        connect(two_edits, &details::input_frame::answers, this, &Input::answers);
     }
 
     void Input::switch_to(input_type type, bool disable_kunyomi)
