@@ -15,7 +15,7 @@ class NKTest : public QMainWindow
 public:
 
     NKTest();
-   
+
 private:
 
     void setup_views();
@@ -30,7 +30,7 @@ private:
     void dragLeaveEvent(QDragLeaveEvent*);
     void dropEvent(QDropEvent*);
 
-    void NKTest::on_tab_close(int);
+    void on_tab_close(int);
 
 signals:
 
