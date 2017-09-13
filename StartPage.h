@@ -20,6 +20,11 @@ public:
 signals:
 
     void start_session(const std::vector<QString>&);
+
+private:
+
+    void list_context_menu(const QPoint&);
+    void file_context_menu(const QPoint&);
 };
 
 #endif

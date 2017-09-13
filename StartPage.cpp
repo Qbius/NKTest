@@ -1,10 +1,18 @@
-#include "StartPage.h"
+﻿#include "StartPage.h"
 
 start_page::start_page(QWidget* parent) : QWidget(parent), file_list(new QListView{ this }), file_list_model(new QStringListModel{ this })
 {
     file_list->setModel(file_list_model);
     file_list->setSelectionMode(QAbstractItemView::ExtendedSelection);
     file_list->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    file_list->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(file_list, &start_page::customContextMenuRequested, [this](const QPoint& pos) {
+        if (file_list->indexAt(pos).row() < 0)
+            list_context_menu(pos);
+        else
+            file_context_menu(pos);
+    });
 
     QGridLayout* layout = new QGridLayout;
 
@@ -53,4 +61,22 @@ void start_page::remove_filename(const QString& filename)
             break;
         }
     }
+}
+
+void start_page::list_context_menu(const QPoint& pos)
+{
+    QMenu menu{ "Context menu", this };
+
+    QAction action1{ "he", this };
+    connect(&action1, &QAction::triggered, [this, &pos]() {
+        //std::cout << file_list->indexAt(pos).row();
+    });
+    menu.addAction(&action1);
+
+    menu.exec(mapToGlobal(pos));
+}
+
+void start_page::file_context_menu(const QPoint& pos)
+{
+
 }
