@@ -6,9 +6,9 @@
 
 struct vocab
 {
-    QString writing;
-    std::vector<QString> readings;
-    QString meaning;
+    std::vector<QString> writings; //
+    std::vector<QString> readings; // switch to QStringList after all?? Jeez, I'm about to abandon all that is holy...
+    std::vector<QString> meanings; //
 
     enum
     {
@@ -17,9 +17,13 @@ struct vocab
         invalid
     } type;
 
-    vocab(const QString& w, const QStringList& rs, const QString& m, const QString& t)
-        : writing(w), meaning(m), type(t == "kanji" ? kanji : word)
+    vocab(const QStringList& ws, const QStringList& rs, const QStringList& ms, const QString& t) : type(t == "kanji" ? kanji : word)
     {
+        for (const auto& w : ws)
+        {
+            writings.push_back(w);
+        }
+
         for (const auto& r : rs)
         {
             QStringList parts{ r.split(".") };
@@ -32,6 +36,11 @@ struct vocab
                 readings.push_back(parts[0]);
                 readings.push_back(parts[0] + parts[1]);
             }
+        }
+
+        for (const auto& m : ms)
+        {
+            meanings.push_back(m);
         }
     }
 

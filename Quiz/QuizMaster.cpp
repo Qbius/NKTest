@@ -86,7 +86,7 @@ void quiz_master::answered(bool correct)
     {
         --*stats;
         
-        QString correct_answer{ current_question->writing + ": " };
+        QString correct_answer{ current_question->writings.front() + ": " };
         for (auto it = current_question->readings.begin(); it != current_question->readings.end(); ++it)
         {
             if (it != current_question->readings.begin())
@@ -107,7 +107,7 @@ void quiz_master::answered(bool correct)
 
 void quiz_master::set_question()
 {
-    main->set_text(current_question->writing);
+    main->set_text(current_question->writings.front());
 
     const View::Input::input_type input_type = current_question->type == vocab::kanji ? View::Input::KANJI : View::Input::WORD;
     const bool disable_kunyomi = is_katakana(current_question->readings);

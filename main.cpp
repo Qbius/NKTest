@@ -5,8 +5,9 @@
 
 int main(int argc, char** argv)
 {
-    if (!boost::filesystem::exists(nk_quiz_directory) || !boost::filesystem::is_directory(nk_quiz_directory))
-        boost::filesystem::create_directories(nk_quiz_directory);
+    nk_directory.create();
+    nk_quiz_directory.create();
+    nk_data_directory.create();
 
     QApplication a(argc, argv);
     NKTest w;

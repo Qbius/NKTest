@@ -1,5 +1,4 @@
 #include <QtWidgets>
-#include "FileManager.h"
 #include <vector>
 #include <set>
 #include "vocab.h"
@@ -10,7 +9,7 @@ class NKTest : public QMainWindow
     Q_OBJECT
 
     QTabWidget* tabs;
-    file_manager file_mgr;
+    start_page* main_page;
 
 public:
 
@@ -20,10 +19,8 @@ private:
 
     void setup_views();
     void setup_menus();
-    void add_file();
-    void file_mgr_dialog();
     void new_session(const std::vector<vocab>&);
-    std::vector<vocab> parse_files(const std::set<std::string>&);
+    std::vector<vocab> parse_files(const std::vector<QString>&);
 
     void dragEnterEvent(QDragEnterEvent*);
     void dragMoveEvent(QDragMoveEvent*);
@@ -31,9 +28,4 @@ private:
     void dropEvent(QDropEvent*);
 
     void on_tab_close(int);
-
-signals:
-
-    void file_added(const QString&);
-    void file_removed(const QString&);
 };
