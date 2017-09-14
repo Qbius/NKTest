@@ -1,5 +1,4 @@
 ﻿#include "NKTest.h"
-#include <boost/filesystem.hpp>
 #include <fstream>
 #include "Quiz/QuizMaster.h"
 #include "NKTestConstants.h"

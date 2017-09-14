@@ -1,6 +1,5 @@
 #include <QtWidgets/QApplication>
 #include "NKTest.h"
-#include <boost/filesystem.hpp>
 #include "NKTestConstants.h"
 
 int main(int argc, char** argv)
