@@ -3,8 +3,6 @@
 
 #include <QtWidgets>
 #include <QtNetwork>
-#include "vocab.h"
-#include <vector>
 
 class kanji_list : public QDialog
 {
@@ -32,7 +30,7 @@ private:
 
     void call_api();
     void accept_reply(QNetworkReply*);
-    vocab parse_json(const QString&);
+    QString parse_json(const QString&);
 };
 
 #endif

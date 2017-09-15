@@ -1,4 +1,5 @@
 ﻿#include "KanjiListDialog.h"
+#include "vocab.h"
 
 const QString url_base = "http://jisho.org/api/v1/search/words?keyword=";
 
@@ -31,7 +32,7 @@ kanji_list::kanji_list() : name_edit(new QLineEdit{ this }), list_edit(new QText
         for (const auto& c : list_edit->toPlainText())
         {
             bar->setValue(i);
-            bar->setFormat(QString::fromStdString(std::to_string(i)) + "/" + QString::fromStdString(std::to_string(kanji.size())));
+            bar->setFormat(QString::number(i) + "/" + QString::number(kanji.size()));
             current = c;
             call_api();
 
@@ -66,7 +67,7 @@ void kanji_list::accept_reply(QNetworkReply* reply)
     emit finished_parsing();
 }
 
-vocab kanji_list::parse_json(const QString& json_string)
+QString kanji_list::parse_json(const QString& json_string)
 {
     QStringList
         writings{ current },
