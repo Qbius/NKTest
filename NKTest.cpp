@@ -3,6 +3,7 @@
 #include "Quiz/QuizMaster.h"
 #include "NKTestConstants.h"
 #include "FileUtilities.h"
+#include "KanjiListDialog.h"
 
 NKTest::NKTest()
     : tabs(new QTabWidget{ this }), main_page(new start_page{ this })
@@ -42,6 +43,7 @@ void NKTest::setup_menus()
 
     QMenu* fileMenu = menuBar()->addMenu(tr("File"));
     fileMenu->addAction(create_action("Add", main_page, &start_page::add_files));
+    fileMenu->addAction(create_action("New kanji list", this, &NKTest::new_kanji_list));
 
     QMenu* sessionMenu = menuBar()->addMenu(tr("Current session"));
 }
@@ -64,6 +66,17 @@ void NKTest::new_session(const std::vector<vocab>& m)
         QMessageBox* alert = new QMessageBox{ QMessageBox::Warning, "Warning", "Material list is empty", QMessageBox::Ok, this };
         alert->exec();
     }
+}
+
+void NKTest::new_kanji_list()
+{
+    kanji_list dlg;
+    if (dlg.exec() != QDialog::Rejected)
+    {
+        file::path new_file{ nk_quiz_directory / (dlg.name + "." + nk_extension) };
+        new_file.write(dlg.list);
+    }
+
 }
 
 std::vector<vocab> NKTest::parse_files(const std::vector<QString>& filenames)

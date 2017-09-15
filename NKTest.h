@@ -20,6 +20,7 @@ private:
     void setup_views();
     void setup_menus();
     void new_session(const std::vector<vocab>&);
+    void new_kanji_list();
     std::vector<vocab> parse_files(const std::vector<QString>&);
 
     void dragEnterEvent(QDragEnterEvent*);

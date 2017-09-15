@@ -49,7 +49,8 @@ inline bool is_katakana(const QString& str)
     return true;
 }
 
-inline bool is_katakana(const std::vector<QString>& strs)
+template<class TContainer>
+bool is_katakana(const TContainer& strs)
 {
     for (const auto& str : strs)
     {
