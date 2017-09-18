@@ -1,43 +1,54 @@
 ﻿#include "InputView.h"
+#include "Settings.h"
+#include <chrono>
 
 namespace View
 {
-    Input::Input(QWidget* parent)
-        : QWidget(parent), layout(new QStackedLayout), one_edit(new details::input_frame{ { "読み" }, this }), two_edits(new details::input_frame{ { "音読み", "訓読み" }, this })
+    Input::Input(QWidget* parent) : 
+        QWidget(parent), 
+        layout(new QStackedLayout),       
+        timer(new QTimer{ this }),
+        count(0)
     {
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-        layout->addWidget(one_edit);
-        layout->addWidget(two_edits);
-        setLayout(layout);
+        input_frames.insert(std::make_pair(KANJI_READING, new details::input_frame{ { "音読み", "訓読み" }, this }));
+        input_frames.insert(std::make_pair(WORDS_READING, new details::input_frame{ { "読み" }, this }));
+        input_frames.insert(std::make_pair(KANJI_WRITING, new details::input_frame{ { "漢字" }, this }));
+        input_frames.insert(std::make_pair(WORDS_WRITING, new details::input_frame{ { "Word" }, this }));
 
-        connect(one_edit, &details::input_frame::answers, this, &Input::answers);
-        connect(two_edits, &details::input_frame::answers, this, &Input::answers);
+        for (const auto& input_frame : input_frames)
+        {
+            layout->addWidget(input_frame.second);
+            connect(input_frame.second, &details::input_frame::answers, this, &Input::answers);
+        }
+    
+        connect(timer, &QTimer::timeout, [this]() {
+            if (++count == settings().timer)
+            {
+                auto* p = dynamic_cast<details::input_frame*>(layout->currentWidget());
+                p->check_answers();
+                p->enabled() ? count = 0 : timer->stop();
+            }
+        });
+        timer->start(1000);
+
+        setLayout(layout);
     }
 
     void Input::switch_to(input_type type, bool disable_kunyomi)
     {
-        if (disable_kunyomi && type == KANJI)
-            two_edits->disable_edit(1);
-
-        switch (type)
-        {
-            case KANJI:
-                layout->setCurrentIndex(1);
-                break;
-            case WORD:
-                layout->setCurrentIndex(0);
-                break;
-            default:
-                break;
-        }
+        if (disable_kunyomi && type == KANJI_READING)
+            input_frames[KANJI_READING]->disable_edit(1);
+        layout->setCurrentIndex(static_cast<int>(type));
     }
 
     void Input::disable()
     {
-        one_edit->disable_edit(0);
-        two_edits->disable_edit(0);
-        two_edits->disable_edit(1);
+        for (const auto& input_frame : input_frames)
+        {
+            input_frame.second->disable();
+        }
     }
 
     namespace details
@@ -75,6 +86,24 @@ namespace View
             {
                 edits[index]->setDisabled(true);
             }
+        }
+
+        void input_frame::disable()
+        {
+            for (const auto edit : edits)
+            {
+                edit->setDisabled(true);
+            }
+        }
+
+        bool input_frame::enabled()
+        {
+            for (const auto edit : edits)
+            {
+                if (edit->isEnabled())
+                    return true;
+            }
+            return false;
         }
 
         void input_frame::check_answers()

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <QtWidgets>
+#include <fstream>
 
 namespace file
 {
@@ -58,15 +59,22 @@ namespace file
         {
             std::vector<QString> lines;
 
-            QFile file{ fullpath };
-            if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text))
+            std::ifstream file(fullpath.toStdString());
+            std::string line;
+            while (std::getline(file, line))
             {
-                QTextStream ts(&file);
-                while (!ts.atEnd())
-                {
-                    lines.push_back(ts.readLine());
-                }
+                lines.push_back(QString::fromStdString(line));
             }
+
+            //QFile file{ fullpath };
+            //if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text))
+            //{
+            //    QTextStream ts(&file);
+            //    while (!ts.atEnd())
+            //    {
+            //        lines.push_back(ts.readLine());
+            //    }
+            //}
 
             return lines;
         }

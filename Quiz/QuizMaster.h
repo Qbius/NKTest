@@ -8,6 +8,7 @@
 #include "WrongView.h"
 #include "vocab.h"
 #include <vector>
+#include "Settings.h"
 
 class quiz_master : public QWidget
 {
@@ -32,7 +33,7 @@ private:
     
     void check_answers(std::vector<QString>&);
     void answered(bool);
-    void set_question();
+    void set_question(quiz_type);
 
 signals:
 

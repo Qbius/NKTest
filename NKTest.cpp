@@ -4,6 +4,7 @@
 #include "NKTestConstants.h"
 #include "FileUtilities.h"
 #include "KanjiListDialog.h"
+#include "Settings.h"
 
 NKTest::NKTest()
     : tabs(new QTabWidget{ this }), main_page(new start_page{ this })
@@ -46,6 +47,44 @@ void NKTest::setup_menus()
     fileMenu->addAction(create_action("New kanji list", this, &NKTest::new_kanji_list));
 
     QMenu* sessionMenu = menuBar()->addMenu(tr("Current session"));
+
+    nk_settings& setts = settings(); // fuck
+
+    QMenu* typeMenu = sessionMenu->addMenu(tr("Type..."));
+    QActionGroup* typeGroup = new QActionGroup{ this };
+    typeGroup->setExclusive(true);
+
+    auto add_type_act = [typeMenu, typeGroup, this, &setts](const QString& title, quiz_type type) {
+        QAction* act = new QAction{ title, this };
+        connect(act, &QAction::triggered, [&setts, type]() {
+            setts.set_type(type);
+        });
+        typeGroup->addAction(act);
+        typeMenu->addAction(act);
+    };
+
+    add_type_act("Reading", quiz_type::READING);
+    add_type_act("Writing", quiz_type::WRITING);
+    //add_type_act("Random", quiz_type::RANDOM);
+
+    QMenu* timerMenu = sessionMenu->addMenu(tr("Timer..."));
+    QActionGroup* timerGroup = new QActionGroup{ this };
+    timerGroup->setExclusive(true);
+
+    auto add_timer_act = [timerMenu, timerGroup, this, &setts](const QString& title, int n) {
+        QAction* act = new QAction{ title, this };
+        connect(act, &QAction::triggered, [&setts, n]() {
+            setts.timer = n;
+        });
+        timerGroup->addAction(act);
+        timerMenu->addAction(act);
+    };
+
+    for (int i = 1; i <= 10; ++i)
+    {
+        add_timer_act(QString::number(i), i);
+    }
+    add_timer_act("None", 0);
 }
 
 void NKTest::new_session(const std::vector<vocab>& m)

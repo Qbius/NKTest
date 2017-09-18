@@ -12,7 +12,6 @@ quiz_master::quiz_master(const std::vector<vocab>& mat, QWidget* parent) :
     current_question(material.begin())
 {
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
     QGridLayout* layout = new QGridLayout;
 
     layout->setRowMinimumHeight(0, 250);
@@ -40,12 +39,13 @@ quiz_master::quiz_master(const std::vector<vocab>& mat, QWidget* parent) :
     connect(wrong, &View::Wrong::mistake_session, [this]() {
         emit quick_session(mistakes);
     });
+    connect(&settings(), &nk_settings::type_changed, this, &quiz_master::set_question);
 
     std::random_device seed;
     std::mt19937 rng(seed());
     std::shuffle(material.begin(), material.end(), rng);
 
-    set_question();
+    set_question(settings().type);
 }
 
 bool quiz_master::in_progress()
@@ -55,18 +55,34 @@ bool quiz_master::in_progress()
 
 void quiz_master::check_answers(std::vector<QString>& answers)
 {
-    for (auto& answer : answers)
-    {
-        answer = answer.replace("ｎ", "ん");
-    }
+    const QStringList* to_check;
 
-    if (current_question->type == vocab::kanji && !answers.empty())
-        *answers.begin() = hiragana_to_katakana(*answers.begin());
+    switch (settings().type)
+    {
+        case quiz_type::READING:
+        {
+            for (auto& answer : answers)
+            {
+                answer = answer.replace("ｎ", "ん");
+            }
+
+            if (current_question->type == vocab::kanji && !answers.empty())
+                *answers.begin() = hiragana_to_katakana(*answers.begin());
+
+            to_check = &current_question->readings;
+        }
+        break;
+
+        case quiz_type::WRITING:
+        {
+            to_check = &current_question->writings;
+        }
+    }
 
     bool res = true;
     for (const auto& answer : answers)
     {
-        if (std::find(current_question->readings.begin(), current_question->readings.end(), answer) == current_question->readings.end())
+        if (std::find(to_check->begin(), to_check->end(), answer) == to_check->end())
         {
             res = false;
             break;
@@ -78,6 +94,15 @@ void quiz_master::check_answers(std::vector<QString>& answers)
 
 void quiz_master::answered(bool correct)
 {
+    static auto random_type = []() -> quiz_type {
+        static std::random_device seed;
+        static std::mt19937 rng(seed());
+        static std::uniform_int_distribution<int> range(0, 1);
+
+        return static_cast<quiz_type>(range(rng));
+    };
+    quiz_type current = (settings().type == quiz_type::RANDOM) ? random_type() : settings().type;
+
     if (correct)
     {
         ++*stats;
@@ -85,32 +110,54 @@ void quiz_master::answered(bool correct)
     else
     {
         --*stats;
-        
-        QString correct_answer{ current_question->writings.front() + ": " };
-        for (auto it = current_question->readings.begin(); it != current_question->readings.end(); ++it)
+
+        QString mistake_header;
+        QStringList mistake_answers;
+
+        switch (current)
         {
-            if (it != current_question->readings.begin())
-                correct_answer += ", ";
-            correct_answer += *it;
+            case quiz_type::READING:
+            {
+                mistake_header = current_question->writings.front();
+                mistake_answers = current_question->readings;
+            }
+            break;
+            case quiz_type::WRITING:
+            {
+                mistake_header = current_question->meanings.front();
+                mistake_answers = current_question->writings;
+            }
+            break;
         }
 
-        wrong->insert_mistake(correct_answer);
+        wrong->insert_mistake(mistake_header, mistake_answers);
         mistakes.push_back(*current_question);
     }
 
     ++current_question;
     if (current_question != material.end())
-        set_question();
+        set_question(current);
     else
         input->disable();
 }
 
-void quiz_master::set_question()
+void quiz_master::set_question(quiz_type type)
 {
-    main->set_text(current_question->writings.front());
+    QString display;
+    View::Input::input_type input_type;
 
-    const View::Input::input_type input_type = current_question->type == vocab::kanji ? View::Input::KANJI : View::Input::WORD;
-    const bool disable_kunyomi = is_katakana(current_question->readings);
+    switch (type)
+    {
+        case quiz_type::READING:
+            display = current_question->writings.front();
+            input_type = current_question->type == vocab::kanji ? View::Input::KANJI_READING : View::Input::WORDS_READING;
+            break;
+        case quiz_type::WRITING:
+            display = current_question->meanings.front();
+            input_type = current_question->type == vocab::kanji ? View::Input::KANJI_WRITING : View::Input::WORDS_WRITING;
+            break;
+    }
 
-    input->switch_to(input_type, disable_kunyomi);
+    main->set_text(display);
+    input->switch_to(input_type, is_katakana(current_question->readings));
 }

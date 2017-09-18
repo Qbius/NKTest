@@ -15,7 +15,7 @@ namespace View
     public:
 
         Wrong(QWidget* = nullptr);
-        void insert_mistake(const QString&);
+        void insert_mistake(const QString&, const QStringList&);
 
     signals:
 

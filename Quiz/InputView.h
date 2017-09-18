@@ -3,6 +3,7 @@
 
 #include <QtWidgets>
 #include <string>
+#include <map>
 
 namespace View
 {
@@ -13,22 +14,29 @@ namespace View
 
     class Input : public QWidget
     {
-        Q_OBJECT 
+        Q_OBJECT
 
-        details::input_frame* one_edit;
-        details::input_frame* two_edits;
+    public:
+
+        enum input_type {
+            KANJI_READING,
+            WORDS_READING,
+            KANJI_WRITING,
+            WORDS_WRITING
+        };
+
+    private:
+
+        std::map<input_type, details::input_frame*> input_frames;
 
         QStackedLayout* layout;
+
+        QTimer* timer;
+        int count;
 
     public:
 
         Input(QWidget* = nullptr);
-        
-        enum input_type {
-            KANJI,
-            WORD
-        };
-
         void switch_to(input_type, bool = false);
         void disable();
 
@@ -50,9 +58,8 @@ namespace View
 
             input_frame(const std::vector<QString>&, QWidget* = nullptr);
             void disable_edit(unsigned);
-
-        private:
-
+            void disable();
+            bool enabled();
             void check_answers();
 
         signals:

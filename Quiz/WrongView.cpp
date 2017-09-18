@@ -31,8 +31,16 @@ namespace View
         mistakes->setDisabled(true);
     }
 
-    void Wrong::insert_mistake(const QString& msg)
+    void Wrong::insert_mistake(const QString& header, const QStringList& correct_answers)
     {
-        mistakes->insertPlainText(msg + "\n");
+        QString correct_answer{ header + ": " };
+        for (auto it = correct_answers.begin(); it != correct_answers.end(); ++it)
+        {
+            if (it != correct_answers.begin())
+                correct_answer += ", ";
+            correct_answer += *it;
+        }
+
+        mistakes->insertPlainText(correct_answer + "\n");
     }
 }
