@@ -52,11 +52,11 @@ struct vocab
                 meaning = parts[2],
                 str_type = parts[3];
 
-            writings = writing.replace(" ・ ", "|").split("|");
+            writings = writing.replace(" ・ ", "|").replace("・", "|").split("|");
             meanings = meaning.replace("; ", "|").split("|");
             type = ((str_type == "kanji") ? kanji : word);
 
-            for (const auto& r : reading.replace(" ・ ", "|").split("|"))
+            for (const auto& r : reading.replace(" ・ ", "|").replace("・", "|").split("|"))
             {
                 QStringList reading_parts{ r.split(".") };
                 if (reading_parts.size() == 1)

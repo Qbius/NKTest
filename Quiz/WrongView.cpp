@@ -28,7 +28,7 @@ namespace View
 
         setLayout(layout);
 
-        mistakes->setDisabled(true);
+        mistakes->setReadOnly(true);
     }
 
     void Wrong::insert_mistake(const QString& header, const QStringList& correct_answers)

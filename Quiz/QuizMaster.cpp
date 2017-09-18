@@ -39,7 +39,9 @@ quiz_master::quiz_master(const std::vector<vocab>& mat, QWidget* parent) :
     connect(wrong, &View::Wrong::mistake_session, [this]() {
         emit quick_session(mistakes);
     });
-    connect(&settings(), &nk_settings::type_changed, this, &quiz_master::set_question);
+    connect(&settings(), &nk_settings::type_changed, [this](quiz_type type) {
+        if (in_progress()) set_question(type);
+    });
 
     std::random_device seed;
     std::mt19937 rng(seed());
@@ -149,7 +151,7 @@ void quiz_master::set_question(quiz_type type)
     switch (type)
     {
         case quiz_type::READING:
-            display = current_question->writings.front();
+            display = current_question->writings.back();
             input_type = current_question->type == vocab::kanji ? View::Input::KANJI_READING : View::Input::WORDS_READING;
             break;
         case quiz_type::WRITING:

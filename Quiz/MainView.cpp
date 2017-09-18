@@ -13,10 +13,6 @@ namespace View
         label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         label->setAlignment(Qt::AlignCenter);
 
-        QFont font;
-        font.setPointSize(144);
-        label->setFont(font);
-
         layout->addWidget(label);
         setLayout(layout);
     }
@@ -24,5 +20,12 @@ namespace View
     void Main::set_text(const QString& msg)
     {
         label->setText(msg);
+        set_font(500 / (msg.size() + 2));
+    }
+
+    void Main::set_font(int size)
+    {
+        
+        label->setStyleSheet("QLabel { font: " + QString::number(size > 175 ? 175 : size) + "pt; }");
     }
 }

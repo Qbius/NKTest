@@ -15,6 +15,10 @@ namespace View
 
         Main(QWidget* = nullptr);
         void set_text(const QString&);
+
+    private:
+
+        void set_font(int);
     };
 }
 
